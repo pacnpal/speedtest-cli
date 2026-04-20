@@ -29,7 +29,8 @@ submit from a branch named after the target integration branch.
 
 Pull requests will not be accepted that:
 
-1. Do not pass `pep8`, `pyflakes`, and `flake8` (run `tox -e flake8`).
+1. Do not pass `flake8` (run `tox -e flake8`). `flake8` bundles the
+   `pycodestyle` (pep8) and `pyflakes` checks.
 2. Do not work with the supported Python versions (see below) or PyPy3.
 3. Introduce a **required** runtime dependency outside the Python
    standard library. Optional hardening dependencies (such as
@@ -54,8 +55,9 @@ extras.
 
 ## Coding style
 
-The code follows strict `pep8` / `pyflakes`. A few additional
-conventions are worth calling out:
+The code is linted with `flake8`, which runs both `pycodestyle` (pep8)
+and `pyflakes` under the hood. A few additional conventions are worth
+calling out:
 
 1. Do not use `\` for line continuations; wrap long expressions in
    parentheses. `import` statements should each start on their own line

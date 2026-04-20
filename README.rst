@@ -240,15 +240,15 @@ returns a ``https://www.speedtest.net/result/<id>.png`` URL.
 Security
 --------
 
-**HTTPS by default.** As of version 2.1.4, all connections to
-speedtest.net-operated hosts (config, server list, latency probes,
-download/upload endpoints, share API) use HTTPS. Earlier versions
-defaulted to plaintext HTTP, which leaked the client's IP and ISP in
-the clear and let a network attacker tamper with the ping target or
-swap the chosen test server. The ``--secure`` flag is retained as a
-backward-compatible no-op; the new ``--no-secure`` flag opts out and
-is not recommended — speedtest.net may refuse plain-HTTP requests and
-results can no longer be trusted against an on-path attacker.
+**HTTPS by default.** All connections to speedtest.net-operated hosts
+(config, server list, latency probes, download/upload endpoints, share
+API) use HTTPS. Earlier versions defaulted to plaintext HTTP, which
+leaked the client's IP and ISP in the clear and let a network attacker
+tamper with the ping target or swap the chosen test server. The
+``--secure`` flag is retained as a backward-compatible no-op; the
+``--no-secure`` flag opts out and is not recommended — speedtest.net
+may refuse plain-HTTP requests and results can no longer be trusted
+against an on-path attacker.
 
 **Hardened XML parsing.** If ``defusedxml`` is installed,
 ``speedtest-cli`` routes XML parsing through it to reject DTDs,

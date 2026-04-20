@@ -168,11 +168,11 @@ speedtest\-cli \-\-source 192.168.1.100
 .RE
 
 .SH NOTES
-All traffic to speedtest.net-operated hosts uses HTTPS by default as of
-speedtest\-cli 2.1.4. The \fB\-\-secure\fR flag is retained as a no-op
-for backward compatibility; \fB\-\-no\-secure\fR opts out but is not
-recommended because speedtest.net may reject plain-HTTP requests and
-results cannot be trusted against an on-path attacker.
+All traffic to speedtest.net-operated hosts uses HTTPS by default. The
+\fB\-\-secure\fR flag is retained as a no-op for backward compatibility;
+\fB\-\-no\-secure\fR opts out but is not recommended because
+speedtest.net may reject plain-HTTP requests and results cannot be
+trusted against an on-path attacker.
 
 If the \fBdefusedxml\fR package is installed, it is used for parsing
 the speedtest.net XML responses as a defence-in-depth measure. This is
