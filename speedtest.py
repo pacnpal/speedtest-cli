@@ -31,7 +31,6 @@ import sys
 import threading
 import timeit
 import xml.etree.ElementTree as ET
-import xml.parsers.expat
 from argparse import ArgumentParser as ArgParser
 from argparse import SUPPRESS as ARG_SUPPRESS
 from hashlib import md5
@@ -269,7 +268,7 @@ def build_opener(source_address=None, timeout=10):
     `User-Agent`
     """
 
-    printer('Timeout set to %d' % timeout, debug=True)
+    printer('Timeout set to %s' % timeout, debug=True)
 
     if source_address:
         source_address_tuple = (source_address, 0)
@@ -795,7 +794,7 @@ class Speedtest(object):
         uh.close()
 
         if uh.code != 200:
-            return None
+            raise ConfigRetrievalError('HTTP Error %s' % uh.code)
 
         configxml = b''.join(configxml_list)
 
@@ -807,10 +806,16 @@ class Speedtest(object):
             raise SpeedtestConfigError(
                 'Malformed speedtest.net configuration: %s' % parse_err
             ) from parse_err
-        server_config = root.find('server-config').attrib
-        download = root.find('download').attrib
-        upload = root.find('upload').attrib
-        client = root.find('client').attrib
+        try:
+            server_config = root.find('server-config').attrib
+            download = root.find('download').attrib
+            upload = root.find('upload').attrib
+            client = root.find('client').attrib
+        except AttributeError as attr_err:
+            raise SpeedtestConfigError(
+                'Malformed speedtest.net configuration: missing required '
+                'element'
+            ) from attr_err
 
         ignore_servers = [
             int(i) for i in server_config['ignoreids'].split(',') if i
