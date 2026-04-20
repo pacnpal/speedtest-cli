@@ -518,9 +518,8 @@ class HTTPUploaderData(object):
     def pre_allocate(self):
         chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         multiplier = int(round(int(self.length) / 36.0))
-        IO = BytesIO or StringIO
         try:
-            self._data = IO(
+            self._data = BytesIO(
                 ('content1=%s' %
                  (chars * multiplier)[0:int(self.length) - 9]
                  ).encode()
@@ -799,10 +798,13 @@ class Speedtest(object):
         uh, e = catch_request(request, opener=self._opener)
         if e:
             raise ConfigRetrievalError(e)
-        configxml_list = []
+        if uh.code != 200:
+            uh.close()
+            raise ConfigRetrievalError('HTTP Error %s' % uh.code)
 
         stream = get_response_stream(uh)
 
+        configxml_list = []
         while True:
             try:
                 configxml_list.append(stream.read(1024))
@@ -812,9 +814,6 @@ class Speedtest(object):
                 break
         stream.close()
         uh.close()
-
-        if uh.code != 200:
-            raise ConfigRetrievalError('HTTP Error %s' % uh.code)
 
         configxml = b''.join(configxml_list)
 
@@ -934,6 +933,10 @@ class Speedtest(object):
                 if e:
                     errors.append('%s' % e)
                     raise ServersRetrievalError()
+                if uh.code != 200:
+                    uh.close()
+                    errors.append('HTTP Error %s' % uh.code)
+                    raise ServersRetrievalError()
 
                 stream = get_response_stream(uh)
 
@@ -948,9 +951,6 @@ class Speedtest(object):
 
                 stream.close()
                 uh.close()
-
-                if uh.code != 200:
-                    raise ServersRetrievalError()
 
                 serversxml = b''.join(serversxml_list)
 
@@ -1347,12 +1347,6 @@ def parse_args():
         'https://github.com/sivel/speedtest-cli')
 
     parser = ArgParser(description=description)
-    # Give optparse.OptionParser an `add_argument` method for
-    # compatibility with argparse.ArgumentParser
-    try:
-        parser.add_argument = parser.add_option
-    except AttributeError:
-        pass
     parser.add_argument('--no-download', dest='download', default=True,
                         action='store_const', const=False,
                         help='Do not perform download test')
@@ -1422,12 +1416,7 @@ def parse_args():
     parser.add_argument('--debug', action='store_true',
                         help=ARG_SUPPRESS, default=ARG_SUPPRESS)
 
-    options = parser.parse_args()
-    if isinstance(options, tuple):
-        args = options[0]
-    else:
-        args = options
-    return args
+    return parser.parse_args()
 
 
 def validate_optional_args(args):
