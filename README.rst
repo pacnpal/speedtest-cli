@@ -4,24 +4,24 @@ speedtest-cli
 Command line interface for testing internet bandwidth using
 speedtest.net.
 
-.. image:: https://img.shields.io/pypi/v/speedtest-cli.svg
-        :target: https://pypi.org/project/speedtest-cli/
-        :alt: Latest release on PyPI
+.. image:: https://img.shields.io/github/v/tag/pacnpal/speedtest-cli?label=latest%20tag
+        :target: https://github.com/pacnpal/speedtest-cli/tags
+        :alt: Latest tag
 .. image:: https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%20pypy3-blue.svg
         :target: https://www.python.org/downloads/
         :alt: Supported Python versions
-.. image:: https://img.shields.io/pypi/l/speedtest-cli.svg
-        :target: https://github.com/sivel/speedtest-cli/blob/master/LICENSE
+.. image:: https://img.shields.io/github/license/pacnpal/speedtest-cli.svg
+        :target: https://github.com/pacnpal/speedtest-cli/blob/master/LICENSE
         :alt: Apache 2.0 license
-.. image:: https://img.shields.io/pypi/dm/speedtest-cli.svg
-        :target: https://pypi.org/project/speedtest-cli/
-        :alt: Downloads per month
-.. image:: https://img.shields.io/pypi/wheel/speedtest-cli.svg
-        :target: https://pypi.org/project/speedtest-cli/
-        :alt: Wheel availability
-.. image:: https://img.shields.io/pypi/status/speedtest-cli.svg
-        :target: https://pypi.org/project/speedtest-cli/
-        :alt: Development status
+.. image:: https://img.shields.io/github/last-commit/pacnpal/speedtest-cli.svg
+        :target: https://github.com/pacnpal/speedtest-cli/commits/master
+        :alt: Last commit
+.. image:: https://img.shields.io/github/issues/pacnpal/speedtest-cli.svg
+        :target: https://github.com/pacnpal/speedtest-cli/issues
+        :alt: Open issues
+.. image:: https://img.shields.io/github/stars/pacnpal/speedtest-cli.svg?style=social
+        :target: https://github.com/pacnpal/speedtest-cli/stargazers
+        :alt: GitHub stars
 
 .. contents::
         :local:
@@ -61,23 +61,30 @@ No other third-party packages are required at runtime.
 Installation
 ------------
 
-From PyPI
-~~~~~~~~~
+This is a hardened fork maintained at
+`pacnpal/speedtest-cli <https://github.com/pacnpal/speedtest-cli>`_
+with Python 3.9+ support, HTTPS by default, and optional ``defusedxml``
+hardening. It is **not** the build published to PyPI under the name
+``speedtest-cli`` — that is still upstream. Install directly from this
+repository.
+
+From GitHub with pip
+~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    pip install speedtest-cli
+    pip install git+https://github.com/pacnpal/speedtest-cli.git
 
-From GitHub
-~~~~~~~~~~~
+or pin to a specific tag::
+
+    pip install git+https://github.com/pacnpal/speedtest-cli.git@<tag>
+
+From a local clone
+~~~~~~~~~~~~~~~~~~
 
 ::
 
-    pip install git+https://github.com/sivel/speedtest-cli.git
-
-or install a local working copy::
-
-    git clone https://github.com/sivel/speedtest-cli.git
+    git clone https://github.com/pacnpal/speedtest-cli.git
     cd speedtest-cli
     pip install .
 
@@ -87,10 +94,24 @@ Single-file download
 The module is also distributed as a single, dependency-free script.
 Drop it anywhere on your ``PATH``::
 
-    curl -Lo speedtest-cli https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
+    curl -Lo speedtest-cli https://raw.githubusercontent.com/pacnpal/speedtest-cli/master/speedtest.py
     chmod +x speedtest-cli
 
 (Substitute ``wget -O`` for ``curl -Lo`` if you prefer.)
+
+Optional: defusedxml hardening
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``speedtest-cli`` uses ``defusedxml`` for XML parsing when it is
+available and falls back to the standard library parser otherwise. To
+install the tool together with ``defusedxml`` in one step, use the
+``hardened`` extra::
+
+    pip install 'speedtest-cli[hardened] @ git+https://github.com/pacnpal/speedtest-cli.git'
+
+or, if you already installed ``speedtest-cli`` from this repo, just::
+
+    pip install defusedxml
 
 
 Usage
@@ -108,7 +129,7 @@ Usage
 
     Command line interface for testing internet bandwidth using speedtest.net.
     --------------------------------------------------------------------------
-    https://github.com/sivel/speedtest-cli
+    https://github.com/pacnpal/speedtest-cli
 
     options:
       -h, --help            show this help message and exit
@@ -296,7 +317,7 @@ Development
 
 Clone the repository and run the test suite via ``tox``::
 
-    git clone https://github.com/sivel/speedtest-cli.git
+    git clone https://github.com/pacnpal/speedtest-cli.git
     cd speedtest-cli
     pip install tox
     tox                       # run against all available Python versions

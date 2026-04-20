@@ -1344,7 +1344,7 @@ def parse_args():
         'speedtest.net.\n'
         '------------------------------------------------------------'
         '--------------\n'
-        'https://github.com/sivel/speedtest-cli')
+        'https://github.com/pacnpal/speedtest-cli')
 
     parser = ArgParser(description=description)
     parser.add_argument('--no-download', dest='download', default=True,

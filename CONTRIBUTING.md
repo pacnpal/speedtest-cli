@@ -96,7 +96,7 @@ See `tox.ini` for the exact environment definitions.
 ## Reporting bugs
 
 Open an issue on the
-[GitHub tracker](https://github.com/sivel/speedtest-cli/issues).
+[GitHub tracker](https://github.com/pacnpal/speedtest-cli/issues).
 Include:
 
 - `speedtest-cli --version` output (which includes the Python version).

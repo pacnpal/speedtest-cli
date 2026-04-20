@@ -59,12 +59,19 @@ setup(
     name='speedtest-cli',
     version=find_version('speedtest.py'),
     description=('Command line interface for testing internet bandwidth using '
-                 'speedtest.net'),
+                 'speedtest.net (pacnpal hardened fork)'),
     long_description=long_description,
+    long_description_content_type='text/x-rst',
     keywords='speedtest speedtest.net',
     author='Matt Martz',
     author_email='matt@sivel.net',
-    url='https://github.com/sivel/speedtest-cli',
+    maintainer='pacnpal',
+    url='https://github.com/pacnpal/speedtest-cli',
+    project_urls={
+        'Source': 'https://github.com/pacnpal/speedtest-cli',
+        'Issues': 'https://github.com/pacnpal/speedtest-cli/issues',
+        'Upstream': 'https://github.com/sivel/speedtest-cli',
+    },
     license='Apache License, Version 2.0',
     py_modules=['speedtest'],
     entry_points={
@@ -74,6 +81,9 @@ setup(
         ]
     },
     python_requires='>=3.9',
+    extras_require={
+        'hardened': ['defusedxml'],
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python',
