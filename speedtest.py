@@ -44,6 +44,16 @@ from urllib.request import (AbstractHTTPHandler, HTTPDefaultErrorHandler,
                             OpenerDirector, ProxyHandler, Request, URLError,
                             urlopen)
 
+# Prefer defusedxml when available for defence-in-depth against
+# malformed or malicious XML. The stdlib ElementTree parser is already
+# safe for our use (no DTD/external-entity resolution by default), but
+# defusedxml raises on suspicious constructs before they reach the
+# parser. Fall back to the stdlib parser when defusedxml is not installed.
+try:
+    from defusedxml.ElementTree import fromstring as xml_fromstring
+except ImportError:
+    xml_fromstring = ET.fromstring
+
 __version__ = '2.1.4b1'
 
 
@@ -778,7 +788,7 @@ class Speedtest(object):
             try:
                 configxml_list.append(stream.read(1024))
             except (OSError, EOFError) as read_err:
-                raise ConfigRetrievalError(read_err)
+                raise ConfigRetrievalError(read_err) from read_err
             if len(configxml_list[-1]) == 0:
                 break
         stream.close()
@@ -792,11 +802,11 @@ class Speedtest(object):
         printer('Config XML:\n%s' % configxml, debug=True)
 
         try:
-            root = ET.fromstring(configxml)
+            root = xml_fromstring(configxml)
         except ET.ParseError as parse_err:
             raise SpeedtestConfigError(
                 'Malformed speedtest.net configuration: %s' % parse_err
-            )
+            ) from parse_err
         server_config = root.find('server-config').attrib
         download = root.find('download').attrib
         upload = root.find('upload').attrib
@@ -907,7 +917,7 @@ class Speedtest(object):
                     try:
                         serversxml_list.append(stream.read(1024))
                     except (OSError, EOFError) as read_err:
-                        raise ServersRetrievalError(read_err)
+                        raise ServersRetrievalError(read_err) from read_err
                     if len(serversxml_list[-1]) == 0:
                         break
 
@@ -922,11 +932,11 @@ class Speedtest(object):
                 printer('Servers XML:\n%s' % serversxml, debug=True)
 
                 try:
-                    root = ET.fromstring(serversxml)
+                    root = xml_fromstring(serversxml)
                 except ET.ParseError as parse_err:
                     raise SpeedtestServersError(
                         'Malformed speedtest.net server list: %s' % parse_err
-                    )
+                    ) from parse_err
                 elements = root.iter('server')
 
                 for server in elements:
@@ -1489,16 +1499,16 @@ def shell():
             timeout=args.timeout,
             secure=args.secure
         )
-    except (ConfigRetrievalError,) + HTTP_ERRORS as e:
+    except (ConfigRetrievalError, *HTTP_ERRORS) as e:
         printer('Cannot retrieve speedtest configuration', error=True)
-        raise SpeedtestCLIError(e)
+        raise SpeedtestCLIError(e) from e
 
     if args.list:
         try:
             speedtest.get_servers()
-        except (ServersRetrievalError,) + HTTP_ERRORS as e:
+        except (ServersRetrievalError, *HTTP_ERRORS) as e:
             printer('Cannot retrieve speedtest server list', error=True)
-            raise SpeedtestCLIError(e)
+            raise SpeedtestCLIError(e) from e
 
         for _, servers in sorted(speedtest.servers.items()):
             for server in servers:
@@ -1523,9 +1533,9 @@ def shell():
                 'No matched servers: %s' %
                 ', '.join('%s' % s for s in args.server)
             )
-        except (ServersRetrievalError,) + HTTP_ERRORS as e:
+        except (ServersRetrievalError, *HTTP_ERRORS) as e:
             printer('Cannot retrieve speedtest server list', error=True)
-            raise SpeedtestCLIError(e)
+            raise SpeedtestCLIError(e) from e
         except InvalidServerIDType:
             raise SpeedtestCLIError(
                 '%s is an invalid server type, must '
