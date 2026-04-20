@@ -1,5 +1,17 @@
-#!/usr/bin/env python
+#!/bin/sh
+''''command -v python3 >/dev/null 2>&1 && exec python3 -- "$0" "$@"; for v in 13 12 11 10 9; do command -v "python3.$v" >/dev/null 2>&1 && exec "python3.$v" -- "$0" "$@"; done; command -v python >/dev/null 2>&1 && exec python -- "$0" "$@"; echo "speedtest-cli: no python3 interpreter found in PATH" >&2; exit 127 # '''  # noqa: E501
 # -*- coding: utf-8 -*-
+#
+# The line above is a shell/Python polyglot: when the file is invoked
+# directly via its shebang, /bin/sh runs the `exec` chain, trying
+# `python3` first, then the explicit `python3.13`..`python3.9` names,
+# and finally plain `python` as a last resort. This works around
+# `env: python: No such file or directory` on systems where no
+# unversioned `python` binary is installed. When Python parses the
+# file (via `python speedtest.py`, `import speedtest`, or after
+# `exec`ing itself from the shell chain), the line is a no-op
+# triple-quoted string literal.
+#
 # Copyright 2012 Matt Martz
 # All Rights Reserved.
 #

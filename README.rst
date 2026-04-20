@@ -99,6 +99,13 @@ Drop it anywhere on your ``PATH``::
 
 (Substitute ``wget -O`` for ``curl -Lo`` if you prefer.)
 
+The script uses a shell/Python polyglot shebang, so it runs on systems
+that only ship versioned interpreters (``python3.13``, ``python3.12``,
+…) instead of a plain ``python`` binary. It tries ``python3`` first,
+then ``python3.13`` through ``python3.9``, and finally ``python``.
+``./speedtest-cli`` will therefore Just Work on modern distributions
+that no longer ship ``/usr/bin/python``.
+
 Optional: defusedxml hardening
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
