@@ -48,10 +48,30 @@ from urllib.request import (AbstractHTTPHandler, HTTPDefaultErrorHandler,
 # safe for our use (no DTD/external-entity resolution by default), but
 # defusedxml raises on suspicious constructs before they reach the
 # parser. Fall back to the stdlib parser when defusedxml is not installed.
+#
+# Note: defusedxml raises ``DefusedXmlException`` (a ``ValueError``
+# subclass, not an ``ET.ParseError``) on forbidden DTDs/entities, so
+# downstream handlers must catch both types to map them onto our own
+# error hierarchy.
 try:
     from defusedxml.ElementTree import fromstring as xml_fromstring
+    from defusedxml.common import DefusedXmlException
+    XML_PARSE_ERRORS = (ET.ParseError, DefusedXmlException)
 except ImportError:
     xml_fromstring = ET.fromstring
+    XML_PARSE_ERRORS = (ET.ParseError,)
+
+# Force UTF-8 on stdout/stderr so non-ASCII ISP or server names don't
+# crash the tool in ASCII-configured environments (e.g.
+# ``PYTHONIOENCODING=ascii`` or a C locale). Python 3.7+ supports
+# ``reconfigure`` on the stdlib TextIOWrapper streams; any other stream
+# object (e.g. a test harness) is left untouched.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding='utf-8', errors='strict')
+    except (AttributeError, OSError, ValueError):
+        pass
+del _stream
 
 __version__ = '2.1.4b1'
 
@@ -802,7 +822,7 @@ class Speedtest(object):
 
         try:
             root = xml_fromstring(configxml)
-        except ET.ParseError as parse_err:
+        except XML_PARSE_ERRORS as parse_err:
             raise SpeedtestConfigError(
                 'Malformed speedtest.net configuration: %s' % parse_err
             ) from parse_err
@@ -938,7 +958,7 @@ class Speedtest(object):
 
                 try:
                     root = xml_fromstring(serversxml)
-                except ET.ParseError as parse_err:
+                except XML_PARSE_ERRORS as parse_err:
                     raise SpeedtestServersError(
                         'Malformed speedtest.net server list: %s' % parse_err
                     ) from parse_err
