@@ -17,7 +17,7 @@ speedtest.net
 Versions
 --------
 
-speedtest-cli works with Python 2.4-3.7
+speedtest-cli works with Python 3.9+
 
 .. image:: https://img.shields.io/pypi/pyversions/speedtest-cli.svg
         :target: https://pypi.python.org/pypi/speedtest-cli/
@@ -80,13 +80,13 @@ Usage
                          [--csv-delimiter CSV_DELIMITER] [--csv-header] [--json]
                          [--list] [--server SERVER] [--exclude EXCLUDE]
                          [--mini MINI] [--source SOURCE] [--timeout TIMEOUT]
-                         [--secure] [--no-pre-allocate] [--version]
+                         [--secure] [--no-secure] [--no-pre-allocate] [--version]
 
     Command line interface for testing internet bandwidth using speedtest.net.
     --------------------------------------------------------------------------
     https://github.com/sivel/speedtest-cli
 
-    optional arguments:
+    options:
       -h, --help            show this help message and exit
       --no-download         Do not perform download test
       --no-upload           Do not perform upload test
@@ -117,8 +117,12 @@ Usage
       --mini MINI           URL of the Speedtest Mini server
       --source SOURCE       Source IP address to bind to
       --timeout TIMEOUT     HTTP timeout in seconds. Default 10
-      --secure              Use HTTPS instead of HTTP when communicating with
-                            speedtest.net operated servers
+      --secure              Use HTTPS when communicating with speedtest.net
+                            operated servers (default, kept for backward
+                            compatibility)
+      --no-secure           Use HTTP instead of HTTPS. Not recommended —
+                            speedtest.net may reject plain HTTP requests and
+                            results can be tampered with in transit
       --no-pre-allocate     Do not pre allocate upload data. Pre allocation is
                             enabled by default to improve upload performance. To
                             support systems with insufficient memory, use this
