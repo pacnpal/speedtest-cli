@@ -1,6 +1,5 @@
 #!/bin/sh
-''''command -v python3 >/dev/null 2>&1 && exec python3 -- "$0" "$@"; for v in 13 12 11 10 9; do command -v "python3.$v" >/dev/null 2>&1 && exec "python3.$v" -- "$0" "$@"; done; command -v python >/dev/null 2>&1 && exec python -- "$0" "$@"; echo "speedtest-cli: no python3 interpreter found in PATH" >&2; exit 127 # '''  # noqa: E501
-# -*- coding: utf-8 -*-
+''''command -v python3 >/dev/null 2>&1 && exec python3 -- "$0" "$@"; for v in 13 12 11 10 9; do command -v "python3.$v" >/dev/null 2>&1 && exec "python3.$v" -- "$0" "$@"; done; command -v python >/dev/null 2>&1 && exec python -- "$0" "$@"; echo "speedtest-cli: no python3, python3.X, or python interpreter found in PATH" >&2; exit 127 # '''  # noqa: E501
 #
 # The line above is a shell/Python polyglot: when the file is invoked
 # directly via its shebang, /bin/sh runs the `exec` chain, trying
@@ -11,6 +10,10 @@
 # file (via `python speedtest.py`, `import speedtest`, or after
 # `exec`ing itself from the shell chain), the line is a no-op
 # triple-quoted string literal.
+#
+# (A PEP 263 encoding cookie used to live here, but with the polyglot
+# on line 2 it would fall on line 3 and be ignored. Python 3 defaults
+# to UTF-8, so the cookie is redundant.)
 #
 # Copyright 2012 Matt Martz
 # All Rights Reserved.

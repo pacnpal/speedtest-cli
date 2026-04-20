@@ -60,7 +60,7 @@ def main():
             'missing-interpreter: expected exit 127, got %d\nstderr: %s'
             % (proc.returncode, proc.stderr)
         )
-    if 'no python3 interpreter found' not in proc.stderr:
+    if 'interpreter found in PATH' not in proc.stderr:
         raise SystemExit(
             'missing-interpreter: expected diagnostic on stderr, got:\n%s'
             % proc.stderr
