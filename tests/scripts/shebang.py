@@ -50,7 +50,8 @@ def main():
     # 3. With no interpreter on PATH, the chain prints an error and
     #    exits 127.
     with tempfile.TemporaryDirectory() as empty_dir:
-        env = {'PATH': empty_dir}
+        env = os.environ.copy()
+        env['PATH'] = empty_dir
         proc = subprocess.run(
             ['/bin/sh', SCRIPT, '--version'],
             capture_output=True, text=True, env=env,
