@@ -2,72 +2,96 @@ speedtest-cli
 =============
 
 Command line interface for testing internet bandwidth using
-speedtest.net
+speedtest.net.
 
 .. image:: https://img.shields.io/pypi/v/speedtest-cli.svg
-        :target: https://pypi.python.org/pypi/speedtest-cli/
-        :alt: Latest Version
-.. image:: https://img.shields.io/travis/sivel/speedtest-cli.svg
-        :target: https://pypi.python.org/pypi/speedtest-cli/
-        :alt: Travis
+        :target: https://pypi.org/project/speedtest-cli/
+        :alt: Latest release on PyPI
+.. image:: https://img.shields.io/pypi/pyversions/speedtest-cli.svg
+        :target: https://pypi.org/project/speedtest-cli/
+        :alt: Supported Python versions
 .. image:: https://img.shields.io/pypi/l/speedtest-cli.svg
-        :target: https://pypi.python.org/pypi/speedtest-cli/
-        :alt: License
+        :target: https://github.com/sivel/speedtest-cli/blob/master/LICENSE
+        :alt: Apache 2.0 license
+.. image:: https://img.shields.io/pypi/dm/speedtest-cli.svg
+        :target: https://pypi.org/project/speedtest-cli/
+        :alt: Downloads per month
+.. image:: https://img.shields.io/pypi/wheel/speedtest-cli.svg
+        :target: https://pypi.org/project/speedtest-cli/
+        :alt: Wheel availability
+.. image:: https://img.shields.io/pypi/status/speedtest-cli.svg
+        :target: https://pypi.org/project/speedtest-cli/
+        :alt: Development status
 
-Versions
+.. contents::
+        :local:
+        :depth: 1
+
+
+Features
 --------
 
-speedtest-cli works with Python 3.9+
+- Measure download speed, upload speed, and latency against
+  speedtest.net.
+- Filter to specific servers by ID, or exclude known-bad ones.
+- Run against a self-hosted Speedtest Mini server.
+- Bind to a specific source IP address.
+- Machine-readable output: JSON and CSV, for logging, graphing, and
+  scripting.
+- Use as a library from Python to automate periodic speed tests.
+- Secure by default: all communication with speedtest.net uses HTTPS,
+  with optional hardened XML parsing via
+  `defusedxml <https://pypi.org/project/defusedxml/>`_.
 
-.. image:: https://img.shields.io/pypi/pyversions/speedtest-cli.svg
-        :target: https://pypi.python.org/pypi/speedtest-cli/
-        :alt: Versions
+
+Requirements
+------------
+
+- **Python 3.9 or newer.** Tested on CPython 3.9 through 3.13 and
+  on PyPy3.
+- Internet access to ``speedtest.net``.
+- **Optional:** ``defusedxml``. When installed, the XML configuration
+  and server list responses are parsed through ``defusedxml`` for
+  defence in depth. Without it, ``speedtest-cli`` falls back to the
+  Python standard library's ``xml.etree.ElementTree`` parser.
+
+No other third-party packages are required at runtime.
+
 
 Installation
 ------------
 
-pip / easy\_install
-~~~~~~~~~~~~~~~~~~~
+From PyPI
+~~~~~~~~~
 
 ::
 
     pip install speedtest-cli
 
-or
-
-::
-
-    easy_install speedtest-cli
-
-Github
-~~~~~~
+From GitHub
+~~~~~~~~~~~
 
 ::
 
     pip install git+https://github.com/sivel/speedtest-cli.git
 
-or
-
-::
+or install a local working copy::
 
     git clone https://github.com/sivel/speedtest-cli.git
     cd speedtest-cli
-    python setup.py install
+    pip install .
 
-Just download (Like the way it used to be)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Single-file download
+~~~~~~~~~~~~~~~~~~~~
 
-::
-
-    wget -O speedtest-cli https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
-    chmod +x speedtest-cli
-
-or
-
-::
+The module is also distributed as a single, dependency-free script.
+Drop it anywhere on your ``PATH``::
 
     curl -Lo speedtest-cli https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py
     chmod +x speedtest-cli
+
+(Substitute ``wget -O`` for ``curl -Lo`` if you prefer.)
+
 
 Usage
 -----
@@ -130,29 +154,165 @@ Usage
       --version             Show the version number and exit
 
 
+Examples
+--------
+
+Run a normal test and print the full human-readable output::
+
+    speedtest-cli
+
+Concise one-line summary::
+
+    speedtest-cli --simple
+
+Emit JSON for a logging pipeline::
+
+    speedtest-cli --json
+
+Emit CSV with a custom delimiter::
+
+    speedtest-cli --csv-header
+    speedtest-cli --csv --csv-delimiter ';'
+
+Test against a specific server (by ID)::
+
+    speedtest-cli --server 1234
+
+List available servers sorted by distance::
+
+    speedtest-cli --list
+
+Run against a local Speedtest Mini instance::
+
+    speedtest-cli --mini http://speedtest.local/mini
+
+Bind outgoing connections to a specific interface address::
+
+    speedtest-cli --source 192.168.1.100
+
+
 Python API
 ----------
 
-See the `wiki <https://github.com/sivel/speedtest-cli/wiki>`_.
+The CLI is a thin wrapper around the ``speedtest`` module. The same
+functionality is available to import directly:
+
+.. code-block:: python
+
+    import speedtest
+
+    s = speedtest.Speedtest()
+    s.get_best_server()
+    s.download()
+    s.upload()
+
+    results = s.results.dict()
+    print(f"Download: {results['download'] / 1_000_000:.2f} Mbit/s")
+    print(f"Upload:   {results['upload']   / 1_000_000:.2f} Mbit/s")
+    print(f"Ping:     {results['ping']:.2f} ms")
+
+Pick a specific server, then run the test::
+
+    s = speedtest.Speedtest()
+    s.get_servers(servers=[1234])   # filter to one server ID
+    s.get_best_server()
+    s.download()
+    s.upload()
+    print(s.results.json())
+
+Useful constructor arguments:
+
+- ``secure`` (default ``True``) — use HTTPS for all speedtest.net
+  traffic. Pass ``False`` only if you have a specific need for HTTP;
+  speedtest.net increasingly rejects plain-HTTP requests.
+- ``source_address`` — an IPv4/IPv6 string to bind outgoing sockets
+  to (equivalent to the ``--source`` CLI flag).
+- ``timeout`` — HTTP timeout in seconds (default ``10``).
+- ``shutdown_event`` — a ``threading.Event`` the caller sets to stop
+  in-flight download/upload threads early.
+
+The ``SpeedtestResults`` object exposed as ``s.results`` provides
+``dict()``, ``json(pretty=False)``, ``csv(delimiter=',')``, and
+``share()`` methods. ``share()`` POSTs the run to speedtest.net and
+returns a ``https://www.speedtest.net/result/<id>.png`` URL.
+
+
+Security
+--------
+
+**HTTPS by default.** As of version 2.1.4, all connections to
+speedtest.net-operated hosts (config, server list, latency probes,
+download/upload endpoints, share API) use HTTPS. Earlier versions
+defaulted to plaintext HTTP, which leaked the client's IP and ISP in
+the clear and let a network attacker tamper with the ping target or
+swap the chosen test server. The ``--secure`` flag is retained as a
+backward-compatible no-op; the new ``--no-secure`` flag opts out and
+is not recommended — speedtest.net may refuse plain-HTTP requests and
+results can no longer be trusted against an on-path attacker.
+
+**Hardened XML parsing.** If ``defusedxml`` is installed,
+``speedtest-cli`` routes XML parsing through it to reject DTDs,
+external entity references, and entity-expansion bombs before they
+reach the standard-library parser. Without ``defusedxml`` the tool
+falls back to ``xml.etree.ElementTree.fromstring``, which is already
+safe in modern Python for the kinds of documents speedtest.net
+returns, but ``defusedxml`` adds an extra belt-and-suspenders layer.
+
+**Certificate verification.** TLS connections use the system trust
+store via Python's ``ssl.create_default_context()`` with hostname
+verification enabled. There is no fallback to unverified TLS.
 
 
 Inconsistency
 -------------
 
-It is not a goal of this application to be a reliable latency reporting tool.
+It is not a goal of this application to be a reliable latency reporting
+tool.
 
-Latency reported by this tool should not be relied on as a value indicative of ICMP
-style latency. It is a relative value used for determining the lowest latency server
-for performing the actual speed test against.
+Latency reported by this tool should not be relied on as a value
+indicative of ICMP-style latency. It is a relative value used for
+determining the lowest-latency server for performing the actual speed
+test against.
 
-There is the potential for this tool to report results inconsistent with Speedtest.net.
-There are several concepts to be aware of that factor into the potential inconsistency:
+There is the potential for this tool to report results inconsistent
+with Speedtest.net. Several factors contribute to the potential
+inconsistency:
 
-1. Speedtest.net has migrated to using pure socket tests instead of HTTP based tests
-2. This application is written in Python
-3. Different versions of Python will execute certain parts of the code faster than others
-4. CPU and Memory capacity and speed will play a large part in inconsistency between
-   Speedtest.net and even other machines on the same network
+1. Speedtest.net has migrated to using pure socket tests instead of
+   HTTP-based tests.
+2. This application is written in Python.
+3. Different versions of Python will execute certain parts of the code
+   faster than others.
+4. CPU and memory capacity and speed will play a large part in
+   inconsistency between speedtest.net and even other machines on the
+   same network.
 
-Issues relating to inconsistencies will be closed as wontfix and without
-additional reason or context.
+Issues relating to inconsistencies will be closed as ``wontfix``
+without additional reason or context.
+
+
+Development
+-----------
+
+Clone the repository and run the test suite via ``tox``::
+
+    git clone https://github.com/sivel/speedtest-cli.git
+    cd speedtest-cli
+    pip install tox
+    tox                       # run against all available Python versions
+    tox -e py312              # a specific CPython version
+    tox -e pypy3              # PyPy3
+    tox -e flake8             # lint only
+
+The default ``tox`` environment byte-compiles the module, runs a live
+speed test against speedtest.net, and executes
+``tests/scripts/source.py`` (a portable smoke test of the
+``--source`` error path). See ``tox.ini`` and ``CONTRIBUTING.md`` for
+details.
+
+
+License
+-------
+
+Apache License, Version 2.0. See `LICENSE <LICENSE>`_ for the full
+text.

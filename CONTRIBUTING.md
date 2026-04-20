@@ -1,39 +1,105 @@
-# Pull Requests
+# Contributing to speedtest-cli
 
-## Pull requests should be
+Thanks for considering a contribution. This document explains how to
+submit changes, the coding conventions the project uses, and how to
+run the test environments locally.
 
-1. Made against the `devel` branch.
-1. Made from a git feature branch.
+## Getting started
 
-## Pull requests will not be accepted that
+1. Fork the repository on GitHub.
+2. Clone your fork and create a feature branch:
+   ```
+   git clone https://github.com/<your-user>/speedtest-cli.git
+   cd speedtest-cli
+   git checkout -b my-feature
+   ```
+3. Install `tox` so you can exercise the test environments:
+   ```
+   pip install tox
+   ```
+4. Make your changes, run the tests (see below), and open a pull
+   request from your branch.
 
-1. Are not made against the `devel` branch
-1. Are submitted from a branch named `devel`
-1. Do not pass pep8/pyflakes/flake8
-1. Do not work with the supported Python versions (see below) or pypy
-1. Add python modules not included with the Python standard library
-1. Are made by editing files via the GitHub website
+## Pull requests
 
-# Coding Guidelines
+Open pull requests against the default development branch of this
+repository. Check the GitHub page if you are unsure which branch that
+is. Pull requests should be made from a feature branch; do not
+submit from a branch named after the target integration branch.
 
-In general, I follow strict pep8 and pyflakes. All code must pass these tests.
+Pull requests will not be accepted that:
 
-## Some other points
+1. Do not pass `pep8`, `pyflakes`, and `flake8` (run `tox -e flake8`).
+2. Do not work with the supported Python versions (see below) or PyPy3.
+3. Introduce a **required** runtime dependency outside the Python
+   standard library. Optional hardening dependencies (such as
+   `defusedxml`, which is detected at import time and falls back to
+   the stdlib parser) are acceptable.
+4. Are made by editing files via the GitHub website.
 
-1. Do not use `\` for line continuations, long strings should be wrapped in `()`.  Imports should start a brand new line in the form of `from foo import...`
-1. String quoting should be done with single quotes `'`, except for situations where you would otherwise have to escape an internal single quote
-1. Docstrings should use three double quotes `"""`
-1. All functions, classes and modules should have docstrings following both the PEP257 and PEP8 standards
-1. Inline comments should only be used on code where it is not immediately obvious what the code achieves
+## Supported Python versions
 
-# Supported Python Versions
+All code must support **Python 3.9 and newer**, and PyPy3. Python 2
+and Python 3.8 and older are not supported; do not add compatibility
+shims for them.
 
-All code needs to support Python 3.9+ and pypy3.
+## Dependencies
 
-# Permitted Python Modules
+The script must be usable as a single-file download with zero
+third-party runtime dependencies. Any third-party library use must
+be optional: guard the import with `try` / `except ImportError`, fall
+back to a standard-library implementation, and document the new
+optional dependency in `README.rst` and (if applicable) the `setup.py`
+extras.
 
-Only modules included in the standard library are permitted for use in this application.  This application should not be dependent on any 3rd party modules that would need to be installed external to just Python itself.
+## Coding style
 
-# Testing
+The code follows strict `pep8` / `pyflakes`. A few additional
+conventions are worth calling out:
 
-Currently there are no unit tests, but they are planned.
+1. Do not use `\` for line continuations; wrap long expressions in
+   parentheses. `import` statements should each start on their own line
+   (`from foo import bar` rather than chained imports).
+2. Prefer single quotes (`'`) for string literals, except when the
+   string already contains a single quote.
+3. Use triple double quotes (`"""..."""`) for docstrings, following
+   PEP 257 and PEP 8.
+4. Every function, class, and module should have a docstring.
+5. Inline comments are for non-obvious intent or surprising invariants,
+   not for narrating what the code does.
+6. Exceptions raised while handling another exception should use
+   `raise NewError(...) from caught_error` so the original traceback
+   is preserved explicitly.
+
+## Testing
+
+The project uses `tox` to run environments for each supported
+Python version. The default environment compiles the module, runs a
+live speed test against speedtest.net, and executes a portable
+smoke test of the `--source` error path.
+
+Common commands:
+
+- `tox` — run against every Python interpreter available on the host.
+- `tox -e py312` — run against a specific CPython version.
+- `tox -e pypy3` — run against PyPy3.
+- `tox -e flake8` — lint only (fast, no network).
+
+The live speed test requires internet access to speedtest.net and will
+briefly saturate your connection, so prefer `tox -e flake8` for quick
+iteration during development.
+
+See `tox.ini` for the exact environment definitions.
+
+## Reporting bugs
+
+Open an issue on the
+[GitHub tracker](https://github.com/sivel/speedtest-cli/issues).
+Include:
+
+- `speedtest-cli --version` output (which includes the Python version).
+- The exact command you ran.
+- The full, unredacted error or debug output (run with `--debug` for
+  the verbose trace).
+- Whether the problem reproduces against multiple servers or is
+  isolated to one `--server <id>`.
