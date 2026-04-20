@@ -1,4 +1,4 @@
-.TH "speedtest-cli" 1 "2018-01-05" "speedtest-cli"
+.TH "speedtest-cli" 1 "2026-04-20" "speedtest-cli"
 .SH NAME
 speedtest\-cli \- Command line interface for testing internet bandwidth using speedtest.net
 .SH SYNOPSIS
@@ -105,7 +105,12 @@ HTTP timeout in seconds. Default 10
 
 \fB\-\-secure\fR
 .RS
-Use HTTPS instead of HTTP when communicating with speedtest.net operated servers
+Use HTTPS when communicating with speedtest.net operated servers. This is the default and is kept for backward compatibility.
+.RE
+
+\fB\-\-no\-secure\fR
+.RS
+Use HTTP instead of HTTPS. Not recommended \- speedtest.net may reject plain HTTP requests and results can be tampered with in transit.
 .RE
 
 \fB\-\-no\-pre\-allocate\fR

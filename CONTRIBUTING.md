@@ -10,13 +10,13 @@
 1. Are not made against the `devel` branch
 1. Are submitted from a branch named `devel`
 1. Do not pass pep8/pyflakes/flake8
-1. Do not work with Python 2.4-3.4 or pypy
+1. Do not work with the supported Python versions (see below) or pypy
 1. Add python modules not included with the Python standard library
 1. Are made by editing files via the GitHub website
 
 # Coding Guidelines
 
-In general, I follow strict pep8 and pyflakes. All code must pass these tests. Since we support python 2.4-3.4 and pypy, pyflakes reports unknown names in python 3.  pyflakes is run in python 2.7 only in my tests.
+In general, I follow strict pep8 and pyflakes. All code must pass these tests.
 
 ## Some other points
 
@@ -28,7 +28,7 @@ In general, I follow strict pep8 and pyflakes. All code must pass these tests. S
 
 # Supported Python Versions
 
-All code needs to support Python 2.4-3.4 and pypy.
+All code needs to support Python 3.9+ and pypy3.
 
 # Permitted Python Modules
 
