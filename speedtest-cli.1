@@ -130,19 +130,62 @@ Show the version number and exit
 speedtest\-cli
 .RE
 
+\fBConcise one-line summary\fR
+.RS
+speedtest\-cli \-\-simple
+.RE
+
+\fBMachine-readable JSON output for logging\fR
+.RS
+speedtest\-cli \-\-json
+.RE
+
+\fBCSV with a custom delimiter\fR
+.RS
+speedtest\-cli \-\-csv \-\-csv\-delimiter ';'
+.RE
+
 \fBSpecify testing against server 1491\fR
 .RS
-speedtest-cli \-\-server 1491
+speedtest\-cli \-\-server 1491
+.RE
+
+\fBList servers sorted by distance, then test against one\fR
+.RS
+speedtest\-cli \-\-list
+.br
+speedtest\-cli \-\-server 1491
 .RE
 
 \fBTesting against Speedtest Mini\fR
 .RS
-speedtest-cli \-\-mini 172.18.66.1
+speedtest\-cli \-\-mini http://speedtest.local/mini
 .RE
 
+\fBBind to a specific source IP address\fR
+.RS
+speedtest\-cli \-\-source 192.168.1.100
+.RE
+
+.SH NOTES
+All traffic to speedtest.net-operated hosts uses HTTPS by default. The
+\fB\-\-secure\fR flag is retained as a no-op for backward compatibility;
+\fB\-\-no\-secure\fR opts out but is not recommended because
+speedtest.net may reject plain-HTTP requests and results cannot be
+trusted against an on-path attacker.
+
+If the \fBdefusedxml\fR package is installed, it is used for parsing
+the speedtest.net XML responses as a defence-in-depth measure. This is
+optional; the standard library parser is used when \fBdefusedxml\fR
+is not available.
+
+.SH SEE ALSO
+speedtest.net(1) web interface at https://www.speedtest.net/
+
 .SH REPORTING BUGS
-Please file issues on the Github bug tracker: https://github.com/sivel/speedtest\-cli
+Please file issues on the GitHub bug tracker:
+https://github.com/sivel/speedtest\-cli/issues
 
 .SH AUTHORS
-This manual page was written by Jonathan Carter <jonathan@ubuntu.com>
-Speedtest\-cli was written by Matt Martz <matt@sivel.net>
+This manual page was written by Jonathan Carter <jonathan@ubuntu.com>.
+Speedtest\-cli was written by Matt Martz <matt@sivel.net>.
